@@ -4,7 +4,7 @@ import shutil
 
 DIRNAME = './files'
 ARCHIVE_DIRNAME = './archive'
-FLUME_DIR = './flume'
+FLUME_DIR = '../flume'
 
 
 def make_dirs():
