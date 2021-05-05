@@ -1,10 +1,24 @@
 from csv_diff import load_csv, compare
 import os
 import shutil
+import subprocess
 
 DIRNAME = './files'
 ARCHIVE_DIRNAME = './archive'
 FLUME_DIR = '../flume'
+HDFS_DIR = '/user/cloudera/flume/events'
+
+
+def run_cmd(args_list):
+    """
+    run linux commands
+    """
+    # import subprocess
+    print('Running system command: {0}'.format(' '.join(args_list)))
+    proc = subprocess.Popen(args_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    s_output, s_err = proc.communicate()
+    s_return = proc.returncode
+    return s_return, s_output, s_err
 
 
 def make_dirs():
@@ -37,10 +51,14 @@ def archive_files():
 
 
 def move_to_flume():
-    for filename in os.listdir(FLUME_DIR):
-        if filename.endswith('.COMPLETED'): os.remove(os.path.join(FLUME_DIR, filename))
+    # for filename in os.listdir(FLUME_DIR):
+    #     if filename.endswith('.COMPLETED'): os.remove(os.path.join(FLUME_DIR, filename))
+    # for filename in os.listdir(DIRNAME):
+    #     shutil.copyfile(os.path.join(DIRNAME, filename), os.path.join(FLUME_DIR, filename))
+
     for filename in os.listdir(DIRNAME):
         shutil.copyfile(os.path.join(DIRNAME, filename), os.path.join(FLUME_DIR, filename))
+        (ret, out, err) = run_cmd(['hdfs', 'dfs', '-copyFromLocal', os.path.abspath(os.path.join(DIRNAME, filename)), os.path.join(HDFS_DIR, filename)])
 
 
 def clear_files():
