@@ -37,6 +37,8 @@ def archive_files():
 
 
 def move_to_flume():
+    for filename in os.listdir(FLUME_DIR):
+        os.remove(os.path.join(FLUME_DIR, filename))
     for filename in os.listdir(DIRNAME):
         shutil.copyfile(os.path.join(DIRNAME, filename), os.path.join(FLUME_DIR, filename))
 
