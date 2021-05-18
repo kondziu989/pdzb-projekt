@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 import shutil
 import subprocess
+import spark
 
 DIRNAME = '/home/cloudera/Desktop/pdzb/files'
 ARCHIVE_DIRNAME = '/home/cloudera/Desktop/pdzb/archive'
@@ -25,6 +26,7 @@ def run_cmd(args_list):
 def make_dirs():
     if not os.path.exists(DIRNAME): os.makedirs(DIRNAME)
     if not os.path.exists(ARCHIVE_DIRNAME): os.makedirs(ARCHIVE_DIRNAME)
+    if not os.path.exists('home/cloudera/Desktop/pdzb/digested'): os.makedirs('home/cloudera/Desktop/pdzb/digested')
     # if not os.path.exists(FLUME_DIR): os.makedirs(FLUME_DIR)
 
 
@@ -52,16 +54,9 @@ def archive_files():
 
 
 def move_to_flume():
-     date = datetime.timestamp(datetime.now())
-    # for filename in os.listdir(FLUME_DIR):
-    #    if filename.endswith('.COMPLETED'): os.remove(os.path.join(FLUME_DIR, filename))
-    #for filename in os.listdir(DIRNAME):
-    #    shutil.copyfile(os.path.join(DIRNAME, filename), os.path.join(FLUME_DIR, filename))
-
-     for filename in os.listdir(DIRNAME):
-         # shutil.copyfile(os.path.join(DIRNAME, filename), os.path.join(FLUME_DIR, filename))
-         (ret, out, err) = run_cmd(['hdfs', 'dfs', '-copyFromLocal', '-f', os.path.abspath(os.path.join(DIRNAME, filename)), os.path.join(HDFS_DIR, filename)])
-         print(ret, out, err)
+    for filename in os.listdir(DIRNAME):
+        (ret, out, err) = run_cmd(['hdfs', 'dfs', '-copyFromLocal', '-f', os.path.abspath(os.path.join(DIRNAME, filename)), os.path.join(HDFS_DIR, filename)])
+        print(ret, out, err)
 
 
 def clear_files():
@@ -72,6 +67,8 @@ def clear_files():
 def run_comparison():
     if is_different():
         print('Difference detected')
+        print('Running spark...')
+        spark.write_files()
         print('Archiving files...')
         archive_files()
         print('Moving to flume..')
