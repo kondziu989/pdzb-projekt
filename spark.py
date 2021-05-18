@@ -1,5 +1,3 @@
-from pyspark.sql import SparkSession
-from compare_files import run_cmd
 import os
 from pyspark.sql import SQLContext
 spark = SQLContext(sc)
@@ -33,10 +31,6 @@ def select_columns(columns, frame):
 
 def write_file(df, name):
     df.write.mode('overwrite').option('header', 'true').csv('hdfs://temp/{}.csv'.format(name))
-
-
-# def push_to_impala(frame):
-#     (ret, out, err) = run_cmd(['hdfs', 'dfs', '-copyFromLocal', '-f', os.path.abspath(os.path.join(DIRNAME, filename)), os.path.join(HDFS_DIR, filename)])
 
 
 def get_dims():
