@@ -3,24 +3,13 @@ from datetime import datetime
 import os
 import shutil
 import subprocess
+from run_cmd import run_cmd
 import spark
 
 DIRNAME = '/home/cloudera/Desktop/pdzb/files'
 ARCHIVE_DIRNAME = '/home/cloudera/Desktop/pdzb/archive'
 FLUME_DIR = '../flume'
 HDFS_DIR = '/user/cloudera/flume/events'
-
-
-def run_cmd(args_list):
-    """
-    run linux commands
-    """
-    import subprocess
-    print('Running system command: {0}'.format(' '.join(args_list)))
-    proc = subprocess.Popen(args_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    s_output, s_err = proc.communicate()
-    s_return = proc.returncode
-    return s_return, s_output, s_err
 
 
 def make_dirs():

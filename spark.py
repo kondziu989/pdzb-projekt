@@ -1,6 +1,6 @@
 import pandas as spark
 import os
-from compare_files import run_cmd
+from run_cmd import run_cmd
 
 OUTPUT_DIR = 'digested'
 INPUT_DIR = 'files'
