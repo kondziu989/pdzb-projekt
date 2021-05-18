@@ -1,7 +1,7 @@
 from fetch_files import fetch_files
 import compare_files
 
-
+print('I started')
 compare_files.make_dirs()
 
 done = False

@@ -1,30 +1,31 @@
 from csv_diff import load_csv, compare
+from datetime import datetime
 import os
 import shutil
 import subprocess
 
-DIRNAME = './files'
-ARCHIVE_DIRNAME = './archive'
+DIRNAME = '/home/cloudera/Desktop/pdzb/files'
+ARCHIVE_DIRNAME = '/home/cloudera/Desktop/pdzb/archive'
 FLUME_DIR = '../flume'
-# HDFS_DIR = '/user/cloudera/flume/events'
+HDFS_DIR = '/user/cloudera/flume/events'
 
 
-# def run_cmd(args_list):
-#     """
-#     run linux commands
-#     """
-#     # import subprocess
-#     print('Running system command: {0}'.format(' '.join(args_list)))
-#     proc = subprocess.Popen(args_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-#     s_output, s_err = proc.communicate()
-#     s_return = proc.returncode
-#     return s_return, s_output, s_err
+def run_cmd(args_list):
+     """
+     run linux commands
+     """
+     import subprocess
+     print('Running system command: {0}'.format(' '.join(args_list)))
+     proc = subprocess.Popen(args_list, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+     s_output, s_err = proc.communicate()
+     s_return = proc.returncode
+     return s_return, s_output, s_err
 
 
 def make_dirs():
     if not os.path.exists(DIRNAME): os.makedirs(DIRNAME)
     if not os.path.exists(ARCHIVE_DIRNAME): os.makedirs(ARCHIVE_DIRNAME)
-    if not os.path.exists(FLUME_DIR): os.makedirs(FLUME_DIR)
+    # if not os.path.exists(FLUME_DIR): os.makedirs(FLUME_DIR)
 
 
 def is_different():
@@ -51,15 +52,17 @@ def archive_files():
 
 
 def move_to_flume():
-    for filename in os.listdir(FLUME_DIR):
-        if filename.endswith('.COMPLETED'): os.remove(os.path.join(FLUME_DIR, filename))
-    for filename in os.listdir(DIRNAME):
-        shutil.copyfile(os.path.join(DIRNAME, filename), os.path.join(FLUME_DIR, filename))
-    #
-    # for filename in os.listdir(DIRNAME):
-    #     shutil.copyfile(os.path.join(DIRNAME, filename), os.path.join(FLUME_DIR, filename))
-    #     (ret, out, err) = run_cmd(['hdfs', 'dfs', '-copyFromLocal', os.path.abspath(os.path.join(DIRNAME, filename)), os.path.join(HDFS_DIR, filename)])
-    #
+     date = datetime.timestamp(datetime.now())
+    # for filename in os.listdir(FLUME_DIR):
+    #    if filename.endswith('.COMPLETED'): os.remove(os.path.join(FLUME_DIR, filename))
+    #for filename in os.listdir(DIRNAME):
+    #    shutil.copyfile(os.path.join(DIRNAME, filename), os.path.join(FLUME_DIR, filename))
+    
+     for filename in os.listdir(DIRNAME):
+         # shutil.copyfile(os.path.join(DIRNAME, filename), os.path.join(FLUME_DIR, filename))
+         (ret, out, err) = run_cmd(['hdfs', 'dfs', '-copyFromLocal', '-f', os.path.abspath(os.path.join(DIRNAME, filename)), os.path.join(HDFS_DIR, filename)])
+         print(ret, out, err)
+    
 
 def clear_files():
     for filename in os.listdir(DIRNAME):

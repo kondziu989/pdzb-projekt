@@ -1,0 +1,50 @@
+Warning: Your Kaggle API key is readable by other users on this system! To fix this, you can run 'chmod 600 /home/cloudera/.kaggle/kaggle.json'
+I started
+Iteration  1
+Warning: Your Kaggle API key is readable by other users on this system! To fix this, you can run 'chmod 600 /home/cloudera/.kaggle/kaggle.json'
+Downloading...
+Unzipping...
+Removing file...
+Done.
+Diffing files...
+
+seasons.csv
+{'added': [], 'removed': [], 'changed': [], 'columns_added': [], 'columns_removed': []}
+
+driver_standings.csv
+{'added': [], 'removed': [], 'changed': [], 'columns_added': [], 'columns_removed': []}
+
+races.csv
+{'added': [], 'removed': [], 'changed': [], 'columns_added': [], 'columns_removed': []}
+
+constructor_standings.csv
+{'added': [], 'removed': [], 'changed': [], 'columns_added': [], 'columns_removed': []}
+
+constructor_results.csv
+{'added': [], 'removed': [], 'changed': [], 'columns_added': [], 'columns_removed': []}
+
+pit_stops.csv
+{'added': [], 'removed': [], 'changed': [], 'columns_added': [], 'columns_removed': []}
+
+circuits.csv
+{'added': [], 'removed': [], 'changed': [], 'columns_added': [], 'columns_removed': []}
+
+status.csv
+{'added': [], 'removed': [], 'changed': [], 'columns_added': [], 'columns_removed': []}
+
+constructors.csv
+{'added': [], 'removed': [], 'changed': [], 'columns_added': [], 'columns_removed': []}
+
+lap_times.csv
+{'added': [], 'removed': [], 'changed': [], 'columns_added': [], 'columns_removed': []}
+
+qualifying.csv
+{'added': [], 'removed': [], 'changed': [], 'columns_added': [], 'columns_removed': []}
+
+drivers.csv
+{'added': [], 'removed': [], 'changed': [], 'columns_added': [], 'columns_removed': []}
+
+results.csv
+{'added': [], 'removed': [], 'changed': [], 'columns_added': [], 'columns_removed': []}
+
+Removing files...
