@@ -5,9 +5,6 @@ import os
 HDFS_CSV_DIR = 'hdfs://user/cloudera/flume/events'
 spark = SparkSession.builder.getOrCreate()
 
-df_load = spark.read.csv('hdfs://cluster/user/hdfs/test/example.csv')
-df_load.show()
-
 STATUS_COLUMNS = ["status"]
 DRIVERS_COLUMNS = ["forename", "surname", "nationality","dob"]
 CIRCUITS_COLUMNS = ["name", "country"]
@@ -36,16 +33,20 @@ def write_file(df, name):
     df.write.mode('overwrite').option('header', 'true').csv('hdfs://temp/{}.csv'.format(name))
 
 
-def push_to_impala(frame):
-    # (ret, out, err) = run_cmd(['hdfs', 'dfs', '-copyFromLocal', '-f', os.path.abspath(os.path.join(DIRNAME, filename)), os.path.join(HDFS_DIR, filename)])
+# def push_to_impala(frame):
+#     (ret, out, err) = run_cmd(['hdfs', 'dfs', '-copyFromLocal', '-f', os.path.abspath(os.path.join(DIRNAME, filename)), os.path.join(HDFS_DIR, filename)])
 
 
 def get_dims():
     res = []
     for file in mapper:
+        print(file)
         frame = load_file(file)
         frame = select_columns(mapper[file], frame)
         res.append(frame)
     return res
 
 
+print('Running spark...')
+x = get_dims()
+print(x)
