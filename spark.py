@@ -1,4 +1,7 @@
 from pyspark.sql import SQLContext
+from pyspark import SparkContext
+sc = SparkContext()
+
 spark = SQLContext(sc)
 
 HDFS_CSV_DIR = 'hdfs://user/cloudera/flume/events'
