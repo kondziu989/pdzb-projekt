@@ -1,9 +1,11 @@
 from pyspark.sql import SparkSession
 from compare_files import run_cmd
 import os
+from pyspark.sql import SQLContext
+spark = SQLContext(sc)
 
 HDFS_CSV_DIR = 'hdfs://user/cloudera/flume/events'
-spark = SparkSession.builder.getOrCreate()
+# spark = SparkSession.builder.getOrCreate()
 
 STATUS_COLUMNS = ["status"]
 DRIVERS_COLUMNS = ["forename", "surname", "nationality","dob"]
