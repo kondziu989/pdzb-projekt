@@ -43,6 +43,7 @@ def get_dims():
         print(file)
         frame = load_file(file)
         frame = select_columns(mapper[file], frame)
+        write_file(frame, file)
         res.append(frame)
     return res
 
