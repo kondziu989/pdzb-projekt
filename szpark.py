@@ -1,5 +1,6 @@
 import pandas as szpark
 import os
+import transform_dates
 from run_cmd import run_cmd
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -56,7 +57,7 @@ mapper = {
 
 
 def load_file(csv_name):
-    return szpark.read_csv(os.path.join(INPUT_DIR, csv_name))
+    return szpark.read_csv(os.path.join('archive', csv_name))
 
 
 def select_columns(columns, frame):
@@ -78,6 +79,13 @@ def send_to_hdfs():
                                    os.path.join(IMPALA_DIR, mapper[filename][2])])
         print(ret, out, err)
 
+def get_races_date_dims():
+    df = load_file('races.csv')
+    result_strings = [transform_dates.get_date_dims(x, y) for x, y in zip(df['date'], df['time'])]
+    result = [s.split(';') for s in result_strings]
+    result_df = szpark.DataFrame(result, columns=['raceDate', 'Year', 'semester', 'quarter', 'Month'])
+    print('Writing file', 'racedate.csv')
+    write_file(result_df, 'racedate.csv')
 
 def write_files():
     for file in mapper:
@@ -86,6 +94,7 @@ def write_files():
         frame = digest(frame, mapper[file][1])
         print('Writing file', file)
         write_file(frame, file)
+    get_races_date_dims()
     send_to_hdfs()
 
 
@@ -139,5 +148,3 @@ def create_fact():
     results['circuitId'] = merged_results['circuitId']
     results['numberofraces'] = number_of_races_series
     write_file(results, 'participation.csv')
-
-create_fact()
