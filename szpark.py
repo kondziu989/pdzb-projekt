@@ -178,3 +178,4 @@ def create_fact():
     results = szpark.merge(results, laps, on=['raceId', 'driverId'])
 
     calculate_driver(results, races, drivers)
+    write_file(results)
