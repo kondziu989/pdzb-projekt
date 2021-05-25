@@ -106,6 +106,7 @@ def write_files():
         frame = digest(frame, mapper_in[file][1])
         print('Writing file', file)
         write_file(frame, file)
+    create_fact()
     get_races_date_dims()
     send_to_hdfs()
 
