@@ -116,26 +116,24 @@ PARTICIPATION_MAPPER = {
     'grid': 'startingposition'
 }
 
-def create_fact():
-    results = load_file('results.csv')
-    drivers = load_file('drivers.csv')
-    races = load_file('races.csv')
-    pit_stops = load_file('pit_stops.csv')
-    laps = load_file('lap_times.csv')
+def calculate_laps(laps):
+     return laps.groupby(['raceId', 'driverId']).agg({'milliseconds': 'mean'}).rename(columns={'milliseconds': 'avglaptime'}).reset_index()
 
-    pit_stops = pit_stops.groupby(['raceId', 'driverId']).agg({'stop': 'max', 'milliseconds': 'mean'}).rename(columns={'stop': 'pitstopnumber', 'milliseconds': 'avgpitstopduration'}).reset_index()
-    results = select_columns(SELECTED_PARTICIPATION_COLUMNS, results)
-    results = digest(results, PARTICIPATION_MAPPER)
-    results = szpark.merge(results, pit_stops, on=['raceId', 'driverId'])
 
-    laps = laps.groupby(['raceId', 'driverId']).agg({'milliseconds': 'mean'}).rename(columns={'milliseconds': 'avglaptime'}).reset_index()
-    results = szpark.merge(results, laps, on=['raceId', 'driverId'])
+
+def calculate_pit_stops(pit_stops):
+    return pit_stops.groupby(['raceId', 'driverId']).agg({'stop': 'max', 'milliseconds': 'mean'}).rename(columns={'stop': 'pitstopnumber', 'milliseconds': 'avgpitstopduration'}).reset_index()
+
+
+def calculate_driver(results, races, drivers):
     merged_results = szpark.merge(results, races, on=['raceId'])
     merged_result_group_by = merged_results.groupby(['driverId'])
 
     driver_age_series = []
     number_of_races_series = []
+
     for index, result in results.iterrows():
+
         race = races.loc[races['raceId'] == result['raceId']].to_dict('records')[0]
         driver = drivers.loc[drivers['driverId'] == result['driverId']].to_dict('records')[0]
         driver_age = relativedelta(datetime.strptime(race['date'], '%Y-%m-%d'), datetime.strptime(driver['dob'], '%Y-%m-%d')).years
@@ -147,4 +145,26 @@ def create_fact():
     results['driverage'] = driver_age_series
     results['circuitId'] = merged_results['circuitId']
     results['numberofraces'] = number_of_races_series
+
+    return results.filter(items=['raceId', 'driverId', 'driverage', 'numberofraces'])
+
+
+
+def create_fact():
+    results = load_file('results.csv')
+    drivers = load_file('drivers.csv')
+    races = load_file('races.csv')
+    laps = load_file('lap_times.csv')
+    pit_stops = load_file('pit_stops.csv')
+
+    results = select_columns(SELECTED_PARTICIPATION_COLUMNS, results)
+    results = digest(results, PARTICIPATION_MAPPER)
+
+    pit_stops = calculate_pit_stops(pit_stops)
+    results = szpark.merge(results, pit_stops, on=['raceId', 'driverId'])
+
+    laps = calculate_laps(laps)
+    results = szpark.merge(results, laps, on=['raceId', 'driverId'])
+
+    calculate_driver(results, races, drivers)
     write_file(results, 'participation.csv')
