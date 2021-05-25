@@ -4,7 +4,7 @@ import os
 import shutil
 import subprocess
 from run_cmd import run_cmd
-import spark
+import szpark
 
 DIRNAME = '/home/cloudera/Desktop/pdzb/files'
 ARCHIVE_DIRNAME = '/home/cloudera/Desktop/pdzb/archive'
@@ -56,8 +56,8 @@ def clear_files():
 def run_comparison():
     if is_different():
         print('Difference detected')
-        print('Running spark...')
-        spark.write_files()
+        print('Running szpark...')
+        szpark.write_files()
         print('Archiving files...')
         archive_files()
         print('Moving to flume..')

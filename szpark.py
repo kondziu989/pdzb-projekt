@@ -1,4 +1,4 @@
-import pandas as spark
+import pandas as szpark
 import os
 from run_cmd import run_cmd
 
@@ -53,7 +53,7 @@ mapper = {
 
 
 def load_file(csv_name):
-    return spark.read_csv(os.path.join(INPUT_DIR, csv_name))
+    return szpark.read_csv(os.path.join(INPUT_DIR, csv_name))
 
 
 def select_columns(columns, frame):
@@ -62,7 +62,7 @@ def select_columns(columns, frame):
 
 
 def write_file(df, name):
-    df.to_csv(os.path.join(OUTPUT_DIR, name), index=False)
+    df.to_csv(os.path.join(OUTPUT_DIR, name), index=False, header=False)
 
 
 def digest(df, field_dict):
