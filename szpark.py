@@ -78,7 +78,7 @@ def select_columns(columns, frame):
 
 
 def write_file(df, name):
-    df.to_csv(os.path.join(OUTPUT_DIR, name), index=False)
+    df.to_csv(os.path.join(OUTPUT_DIR, name), index=False, header=False)
 
 
 def digest(df, field_dict):
