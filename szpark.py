@@ -148,5 +148,3 @@ def create_fact():
     results['circuitId'] = merged_results['circuitId']
     results['numberofraces'] = number_of_races_series
     write_file(results, 'participation.csv')
-
-create_fact()
