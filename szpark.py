@@ -87,7 +87,7 @@ def digest(df, field_dict):
 
 def send_to_hdfs():
     for filename in os.listdir(OUTPUT_DIR):
-        (ret, out, err) = run_cmd(['hdfs', 'dfs', '-put', os.path.abspath(os.path.join(OUTPUT_DIR, filename)),
+        (ret, out, err) = run_cmd(['hdfs', 'dfs', '-put', '-f' , os.path.abspath(os.path.join(OUTPUT_DIR, filename)),
                                    os.path.join(IMPALA_DIR, mapper_out[filename][2])])
         print(ret, out, err)
 
