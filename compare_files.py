@@ -15,7 +15,7 @@ HDFS_DIR = '/user/cloudera/flume/events'
 def make_dirs():
     if not os.path.exists(DIRNAME): os.makedirs(DIRNAME)
     if not os.path.exists(ARCHIVE_DIRNAME): os.makedirs(ARCHIVE_DIRNAME)
-    if not os.path.exists('home/cloudera/Desktop/pdzb/digested'): os.makedirs('home/cloudera/Desktop/pdzb/digested')
+    if not os.path.exists('/home/cloudera/Desktop/pdzb/digested'): os.makedirs('/home/cloudera/Desktop/pdzb/digested')
     # if not os.path.exists(FLUME_DIR): os.makedirs(FLUME_DIR)
 
 
