@@ -2,6 +2,9 @@ import pandas as szpark
 import os
 import transform_dates
 from run_cmd import run_cmd
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+
 
 OUTPUT_DIR = 'digested'
 INPUT_DIR = 'files'
@@ -15,14 +18,14 @@ RACES_COLUMNS = ["raceId", "name", "date"]
 CONSTRUCTOR_COLUMNS = ['constructorId', 'name', 'nationality']
 
 CONSTRUCTORS_TABLE_COLUMNS = {
-  "constructorId": "ConstructorId",
-  "name": "ConstructorName",
-  "nationality": "Nationality"
+    "constructorId": "ConstructorId",
+    "name": "ConstructorName",
+    "nationality": "Nationality"
 }
 
 STATUS_TABLE_COLUMNS = {
-  "statusId": "StatusId",
-  "status": "StatusType"
+    "statusId": "StatusId",
+    "status": "StatusType"
 }
 
 DRIVERS_TABLE_COLUMN = {
@@ -63,7 +66,7 @@ def select_columns(columns, frame):
 
 
 def write_file(df, name):
-    df.to_csv(os.path.join(OUTPUT_DIR, name), index=False, header=False)
+    df.to_csv(os.path.join(OUTPUT_DIR, name), index=False)
 
 
 def digest(df, field_dict):
@@ -72,7 +75,8 @@ def digest(df, field_dict):
 
 def send_to_hdfs():
     for filename in os.listdir(OUTPUT_DIR):
-        (ret, out, err) = run_cmd(['hdfs', 'dfs', '-put', os.path.abspath(os.path.join(OUTPUT_DIR, filename)), os.path.join(IMPALA_DIR, mapper[filename][2])])
+        (ret, out, err) = run_cmd(['hdfs', 'dfs', '-put', os.path.abspath(os.path.join(OUTPUT_DIR, filename)),
+                                   os.path.join(IMPALA_DIR, mapper[filename][2])])
         print(ret, out, err)
 
 def get_races_date_dims():
@@ -92,3 +96,54 @@ def write_files():
         write_file(frame, file)
     get_races_date_dims()
     send_to_hdfs()
+
+
+PARTICIPATION_COLUMNS = ['driverid', 'raceid', 'constructorid', 'points', 'position', 'startingposition',
+                         'pitstopnumber', 'avgpitstopduration', 'avglaptime', 'driverage', 'numberofraces', 'statusid',
+                         'circuitid']
+
+SELECTED_PARTICIPATION_COLUMNS = [
+    'resultId',
+    'raceId',
+    'driverId',
+    'constructorId',
+    'grid',
+    'position',
+    'points',
+    'statusId'
+]
+
+PARTICIPATION_MAPPER = {
+    'grid': 'startingposition'
+}
+
+def create_fact():
+    df = szpark.DataFrame(columns=PARTICIPATION_COLUMNS)
+    results = load_file('results.csv')
+    drivers = load_file('drivers.csv')
+    races = load_file('races.csv')
+    constructors = load_file('constructors.csv')
+    pit_stops = load_file('pit_stops.csv')
+    laps = load_file('lap_times.csv')
+
+    pit_stops = pit_stops.groupby(['raceId', 'driverId']).agg({'stop': 'max', 'milliseconds': 'mean'}).rename(columns={'stop': 'numberofpitstops', 'milliseconds': 'avgpitstopduration'}).reset_index()
+    results = select_columns(SELECTED_PARTICIPATION_COLUMNS, results)
+    results = digest(results, PARTICIPATION_MAPPER)
+    results = szpark.merge(results, pit_stops, on=['raceId', 'driverId'])
+
+    laps = laps.groupby(['raceId', 'driverId']).agg({'milliseconds': 'mean'}).rename(columns={'milliseconds': 'avglaptime'}).reset_index()
+    results = szpark.merge(results, laps, on=['raceId', 'driverId'])
+    write_file(results, 'participation.csv')
+
+    # print(results)
+    for index, result in results.iterrows():
+        race = races.loc[races['raceId'] == result['raceId']].to_dict('records')[0]
+        driver = drivers.loc[drivers['driverId'] == result['driverId']].to_dict('records')[0]
+        constructor = constructors.loc[constructors['constructorId'] == result['constructorId']].to_dict('records')[0]
+        driver_age = relativedelta(datetime.strptime(race['date'], '%Y-%m-%d'), datetime.strptime(driver['dob'], '%Y-%m-%d')).years
+        print(driver_age)
+        # driverAge = date.strftime() driver['dob']
+
+        # print(race)
+
+create_fact()
