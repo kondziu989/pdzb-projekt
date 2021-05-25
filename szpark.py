@@ -94,7 +94,6 @@ PARTICIPATION_COLUMNS = ['driverid', 'raceid', 'constructorid', 'points', 'posit
                          'circuitid']
 
 SELECTED_PARTICIPATION_COLUMNS = [
-    'resultId',
     'raceId',
     'driverId',
     'constructorId',
@@ -109,32 +108,36 @@ PARTICIPATION_MAPPER = {
 }
 
 def create_fact():
-    df = szpark.DataFrame(columns=PARTICIPATION_COLUMNS)
     results = load_file('results.csv')
     drivers = load_file('drivers.csv')
     races = load_file('races.csv')
-    constructors = load_file('constructors.csv')
     pit_stops = load_file('pit_stops.csv')
     laps = load_file('lap_times.csv')
 
-    pit_stops = pit_stops.groupby(['raceId', 'driverId']).agg({'stop': 'max', 'milliseconds': 'mean'}).rename(columns={'stop': 'numberofpitstops', 'milliseconds': 'avgpitstopduration'}).reset_index()
+    pit_stops = pit_stops.groupby(['raceId', 'driverId']).agg({'stop': 'max', 'milliseconds': 'mean'}).rename(columns={'stop': 'pitstopnumber', 'milliseconds': 'avgpitstopduration'}).reset_index()
     results = select_columns(SELECTED_PARTICIPATION_COLUMNS, results)
     results = digest(results, PARTICIPATION_MAPPER)
     results = szpark.merge(results, pit_stops, on=['raceId', 'driverId'])
 
     laps = laps.groupby(['raceId', 'driverId']).agg({'milliseconds': 'mean'}).rename(columns={'milliseconds': 'avglaptime'}).reset_index()
     results = szpark.merge(results, laps, on=['raceId', 'driverId'])
-    write_file(results, 'participation.csv')
+    merged_results = szpark.merge(results, races, on=['raceId'])
+    merged_result_group_by = merged_results.groupby(['driverId'])
 
-    # print(results)
+    driver_age_series = []
+    number_of_races_series = []
     for index, result in results.iterrows():
         race = races.loc[races['raceId'] == result['raceId']].to_dict('records')[0]
         driver = drivers.loc[drivers['driverId'] == result['driverId']].to_dict('records')[0]
-        constructor = constructors.loc[constructors['constructorId'] == result['constructorId']].to_dict('records')[0]
         driver_age = relativedelta(datetime.strptime(race['date'], '%Y-%m-%d'), datetime.strptime(driver['dob'], '%Y-%m-%d')).years
-        print(driver_age)
-        # driverAge = date.strftime() driver['dob']
+        driver_age_series.append(driver_age)
+        driver_results = merged_result_group_by.get_group(driver['driverId'])
+        number_of_races = driver_results.loc[driver_results['date'] <= race['date']].shape[0]
+        number_of_races_series.append(number_of_races)
 
-        # print(race)
+    results['driverage'] = driver_age_series
+    results['circuitId'] = merged_results['circuitId']
+    results['numberofraces'] = number_of_races_series
+    write_file(results, 'participation.csv')
 
 create_fact()
