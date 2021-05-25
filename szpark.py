@@ -82,5 +82,5 @@ def write_files():
         frame = digest(frame, mapper[file][1])
         print('Writing file', file)
         write_file(frame, file)
-        send_to_hdfs()
+    send_to_hdfs()
 
