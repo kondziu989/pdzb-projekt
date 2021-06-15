@@ -172,10 +172,10 @@ def create_fact():
     results = digest(results, PARTICIPATION_MAPPER)
 
     pit_stops = calculate_pit_stops(pit_stops)
-    results = szpark.merge(results, pit_stops, on=['raceId', 'driverId'])
+    results = szpark.merge(results, pit_stops, on=['raceId', 'driverId'], how='left')
 
     laps = calculate_laps(laps)
-    results = szpark.merge(results, laps, on=['raceId', 'driverId'])
+    results = szpark.merge(results, laps, on=['raceId', 'driverId'], how='left')
 
     calculate_driver(results, races, drivers)
     write_file(results, 'participation.csv')
