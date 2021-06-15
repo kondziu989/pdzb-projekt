@@ -107,7 +107,7 @@ def write_files():
         print('Writing file', file)
         write_file(frame, file)
     create_fact()
-    get_races_date_dims()
+#    get_races_date_dims()
     send_to_hdfs()
 
 
@@ -172,10 +172,10 @@ def create_fact():
     results = digest(results, PARTICIPATION_MAPPER)
 
     pit_stops = calculate_pit_stops(pit_stops)
-    results = szpark.merge(results, pit_stops, on=['raceId', 'driverId'], how='left')
+    results = szpark.merge(results, pit_stops, on=['raceId', 'driverId'], how='outer')
 
     laps = calculate_laps(laps)
-    results = szpark.merge(results, laps, on=['raceId', 'driverId'], how='left')
+    results = szpark.merge(results, laps, on=['raceId', 'driverId'], how='outer')
 
     calculate_driver(results, races, drivers)
     write_file(results, 'participation.csv')
